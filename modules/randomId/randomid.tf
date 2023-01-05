@@ -4,11 +4,11 @@ resource "random_id" "randomId" {
 }
 
 output "id" {
-    value = random_id.randomId.id
-  
+  value = random_id.randomId.id
+
 }
 
 output "hex" {
-    value = random_id.randomId.hex
-  
+  value = random_id.randomId.hex
+
 }

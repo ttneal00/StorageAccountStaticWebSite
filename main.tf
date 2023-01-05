@@ -12,5 +12,5 @@ module "randomString" {
 }
 
 output "hex" {
-  value =  module.randomString.hex
+  value = module.randomString.hex
 }
