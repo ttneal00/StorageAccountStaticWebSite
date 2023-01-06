@@ -35,16 +35,22 @@ module "storageAccount" {
 
 }
 
+module "storageNetworkrules" {
+  source = "./modules/storageAccountNetworkRules"
+  ip_rules = module.currentInfo.MyextIP
+  default_action = "Deny"
+  storage_account_id = module.storageAccount.storageAccountid
+}
+
 resource "null_resource" "fileUpload" {
   provisioner "local-exec" {
     command = <<Settings
     $resourceGroupName = "${module.storageAccountRG.resource_group_name}"
     $storageAccountName = "${module.storageAccount.storageAccountName}"
-    $containerName = "${module.storageContainer.container_name}"
     $storageAccount = Get-AzStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName
     $context = $storageAccount.context
     $Blob1HT = @{
-    File             = 'C:\Users\tneal\OneDrive\Blog Posts\Well Architected Frameworks\azureStaticWebsite\index.html'
+    File             = 'index.html'
     Container        = '$web'
     Blob             = 'index.html'
     Context          = $context
@@ -58,7 +64,7 @@ resource "null_resource" "fileUpload" {
   }
 
   depends_on = [
-    module.storageContainer
+    module.storageAccount
   ]
 }
 
@@ -70,10 +76,11 @@ output "storageAccountid" {
   value = module.storageAccount.storageAccountid
 }
 
-output "containerName" {
-  value = module.storageContainer.container_name
-}
-
 output "resourceGroupName" {
   value = module.storageAccountRG.resource_group_name
+}
+
+output "URL" {
+  value = module.storageAccount.URL
+  
 }

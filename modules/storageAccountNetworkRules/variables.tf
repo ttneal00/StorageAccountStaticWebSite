@@ -1,7 +1,3 @@
-variable "location" {
-
-}
-
 variable "storage_account_id" {
 
 }
@@ -14,6 +10,3 @@ variable "ip_rules" {
 
 }
 
-variable "virtual_network_subnet_ids" {
-
-}
