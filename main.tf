@@ -36,19 +36,37 @@ module "storageAccount" {
 }
 
 module "storageContainer" {
-  source               = "./modules/StorageContainer"
-  container_name       = "${var.env}container"
-  storage_account_name = module.storageAccount.storageAccountName
+  source                = "./modules/StorageContainer"
+  container_name        = "${var.env}container"
+  storage_account_name  = module.storageAccount.storageAccountName
   container_access_type = "container"
 }
 
 resource "null_resource" "fileUpload" {
-    provisioner "local-exec" {
-        command = "PowerShell -file ./postrun/upload.ps1 -containerName ${module.storageContainer.container_name} -StorageAccountName ${module.storageAccount.storageAccountName} -ResourceGroupName ${module.storageAccountRG.resource_group_name}"
-    }
-    depends_on = [
-      module.storageContainer
-    ]
+  provisioner "local-exec" {
+    command = <<Settings
+    $ResourceGroupName = "${module.storageAccountRG.resource_group_name}"
+    $StorageAccountName = "${module.storageAccount.storageAccountName}"
+    $containername = "${module.storageContainer.container_name}"
+    $storageAccount = Get-AzStorageAccount -StorageAccountName $StorageAccountName -ResourceGroupName $resourceGroup
+    $context = $storageAccount.context
+    $Blob1HT = @{
+    File             = 'C:\Users\tneal\OneDrive\Pictures\DJI_0172.JPG'
+    Container        = $containerName
+    Blob             = "DJI_0172.JPG"
+    Context          = $context
+    StandardBlobTier = 'Hot'
+  }
+
+  Set-AzStorageBlobContent @Blob1HT -Verbose
+    Settings
+
+    interpreter = ["PowerShell", "-Command"]
+  }
+
+  depends_on = [
+    module.storageContainer
+  ]
 }
 
 output "storageAccountName" {
@@ -61,4 +79,8 @@ output "storageAccountid" {
 
 output "containerName" {
   value = module.storageContainer.container_name
+}
+
+output "resourceGroupName" {
+  value = module.storageAccountRG.resource_group_name
 }
