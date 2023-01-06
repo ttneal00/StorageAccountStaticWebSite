@@ -35,30 +35,23 @@ module "storageAccount" {
 
 }
 
-module "storageContainer" {
-  source                = "./modules/StorageContainer"
-  container_name        = "${var.env}container"
-  storage_account_name  = module.storageAccount.storageAccountName
-  container_access_type = "container"
-}
-
 resource "null_resource" "fileUpload" {
   provisioner "local-exec" {
     command = <<Settings
-    $ResourceGroupName = "${module.storageAccountRG.resource_group_name}"
-    $StorageAccountName = "${module.storageAccount.storageAccountName}"
-    $containername = "${module.storageContainer.container_name}"
-    $storageAccount = Get-AzStorageAccount -StorageAccountName $StorageAccountName -ResourceGroupName $resourceGroup
+    $resourceGroupName = "${module.storageAccountRG.resource_group_name}"
+    $storageAccountName = "${module.storageAccount.storageAccountName}"
+    $containerName = "${module.storageContainer.container_name}"
+    $storageAccount = Get-AzStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName
     $context = $storageAccount.context
     $Blob1HT = @{
-    File             = 'C:\Users\tneal\OneDrive\Pictures\DJI_0172.JPG'
-    Container        = $containerName
-    Blob             = "DJI_0172.JPG"
+    File             = 'C:\Users\tneal\OneDrive\Blog Posts\Well Architected Frameworks\azureStaticWebsite\index.html'
+    Container        = '$web'
+    Blob             = 'index.html'
     Context          = $context
     StandardBlobTier = 'Hot'
   }
 
-  Set-AzStorageBlobContent @Blob1HT -Verbose
+  Set-AzStorageBlobContent @Blob1HT -Properties @{"ContentType" = "text/html"} -Verbose
     Settings
 
     interpreter = ["PowerShell", "-Command"]
