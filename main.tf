@@ -2,8 +2,8 @@ provider "azurerm" {
   features {}
 }
 
-module "randomString" {
-  source = "./modules/randomid"
+module "randomId" {
+  source = "./modules/randomId"
 }
 
 output "hex" {
@@ -42,32 +42,11 @@ module "storageNetworkrules" {
   storage_account_id = module.storageAccount.storageAccountid
 }
 
-resource "null_resource" "fileUpload" {
-  provisioner "local-exec" {
-    command = <<Settings
-    $resourceGroupName = "${module.storageAccountRG.resource_group_name}"
-    $storageAccountName = "${module.storageAccount.storageAccountName}"
-    $storageAccount = Get-AzStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName
-    $context = $storageAccount.context
-    $Blob1HT = @{
-    File             = 'index.html'
-    Container        = '$web'
-    Blob             = 'index.html'
-    Context          = $context
-    StandardBlobTier = 'Hot'
-  }
-
-  Set-AzStorageBlobContent @Blob1HT -Properties @{"ContentType" = "text/html"} -Verbose
-    Settings
-
-    interpreter = ["PowerShell", "-Command"]
-  }
-
-  depends_on = [
-    module.storageAccount
-  ]
+module "uploadfile" {
+  source = "./modules/uploadProvisioner"
+  resource_group_name = module.storageAccountRG
+  storage_account_name = module.storageAccount.storage_account_name
 }
-
 output "storageAccountName" {
   value = module.storageAccount.storageAccountName
 }
