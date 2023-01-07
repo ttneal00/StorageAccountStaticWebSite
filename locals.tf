@@ -1,6 +1,6 @@
 
 locals {
-  storageAccountName = "${var.env}${module.randomString.hex}"
+  storageAccountName = "${var.env}${module.randomId.hex}"
   tags = {
     Environment  = var.env
     Createdby    = module.currentInfo.client_id

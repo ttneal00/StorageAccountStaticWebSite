@@ -6,10 +6,6 @@ module "randomId" {
   source = "./modules/randomId"
 }
 
-output "hex" {
-  value = module.randomString.hex
-}
-
 module "currentInfo" {
   source = "./modules/currentInfo"
 
@@ -44,8 +40,8 @@ module "storageNetworkrules" {
 
 module "uploadfile" {
   source = "./modules/uploadProvisioner"
-  resource_group_name = module.storageAccountRG
-  storage_account_name = module.storageAccount.storage_account_name
+  resource_group_name = module.storageAccountRG.resource_group_name
+  storage_account_name = module.storageAccount.storageAccountName
 }
 output "storageAccountName" {
   value = module.storageAccount.storageAccountName
@@ -61,5 +57,4 @@ output "resourceGroupName" {
 
 output "URL" {
   value = module.storageAccount.URL
-  
 }
